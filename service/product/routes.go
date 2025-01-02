@@ -6,23 +6,25 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/mux"
+	"github.com/igorfarias30/ecom/service/auth"
 	"github.com/igorfarias30/ecom/types"
 	"github.com/igorfarias30/ecom/utils"
 )
 
 type Handler struct {
-	store types.ProductStore
+	store     types.ProductStore
+	userStore types.UserStore
 }
 
-func NewHandler(store types.ProductStore) *Handler {
-	return &Handler{store: store}
+func NewHandler(store types.ProductStore, userStore types.UserStore) *Handler {
+	return &Handler{store: store, userStore: userStore}
 }
 
 func (h *Handler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/products", h.handleGetProducts).Methods(http.MethodGet)
 
 	// admin routes
-	router.HandleFunc("/products", h.handleCreateProduct).Methods(http.MethodPost)
+	router.HandleFunc("/product", auth.WithJWTAuth(h.handleCreateProduct, h.userStore)).Methods(http.MethodPost)
 }
 
 func (h *Handler) handleGetProducts(w http.ResponseWriter, r *http.Request) {
@@ -48,11 +50,11 @@ func (h *Handler) handleCreateProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// err := h.store.CreateProduct(product)
-	// if err != nil {
-	// 	utils.WriteError(w, http.StatusInternalServerError, err)
-	// 	return
-	// }
+	err := h.store.CreateProduct(product)
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
 
 	utils.WriteJSON(w, http.StatusCreated, product)
 }

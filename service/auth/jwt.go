@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -36,7 +37,7 @@ func WithJWTAuth(handlerFunc http.HandlerFunc, store types.UserStore) http.Handl
 	return func(w http.ResponseWriter, r *http.Request) {
 		// get the token from the user request
 		tokenString := GetTokenFromRequest(r)
-
+		tokenString = strings.Split(tokenString, " ")[1]
 		// validate the JWT
 		token, err := validateToken(tokenString)
 		if err != nil {
@@ -53,7 +54,7 @@ func WithJWTAuth(handlerFunc http.HandlerFunc, store types.UserStore) http.Handl
 
 		// if is we need o fetch the userId from the db
 		claims := token.Claims.(jwt.MapClaims)
-		str := claims["userID"].(string)
+		str := claims["userId"].(string)
 
 		userID, err := strconv.Atoi(str)
 		if err != nil {

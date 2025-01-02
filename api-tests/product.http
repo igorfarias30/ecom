@@ -1,0 +1,30 @@
+GET  http://localhost:8080/api/v1/products
+Content-Type: application/json
+
+#########
+
+# Login to get Bearer Token
+# @name tokenAPI
+POST  http://localhost:8080/api/v1/login
+Content-Type: application/json
+
+{
+  "email": "igor@email.com",
+  "password": "test"
+}
+###
+
+@token = {{tokenAPI.response.body.token}}
+# Create product
+# @name createProduct
+POST http://localhost:8080/api/v1/product
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Seizi Kabuto",
+  "description": "guitar seize kabuto",
+  "image": "image-test",
+  "quantity": 100,
+  "price": 2799.99
+}

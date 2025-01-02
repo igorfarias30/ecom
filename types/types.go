@@ -11,7 +11,7 @@ type UserStore interface {
 type ProductStore interface {
 	GetProducts() ([]Product, error)
 	GetProductsByIDs(productIDs []int) ([]Product, error)
-	// CreateProduct(product CreateProductPayload) error
+	CreateProduct(product CreateProductPayload) error
 	UpdateProduct(product Product) error
 }
 

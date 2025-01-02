@@ -85,6 +85,10 @@ func checkIfCartIsInStock(cartItems []types.CartItem, products map[int]types.Pro
 	return nil
 }
 
-func calculateTotalPrice(item []types.CartItem, productMap map[int]types.Product) float64 {
-	return 0
+func calculateTotalPrice(items []types.CartItem, productMap map[int]types.Product) float64 {
+	totalPrice := 0.0
+	for _, item := range items {
+		totalPrice += float64(item.Quantity) * productMap[item.ProductId].Price
+	}
+	return totalPrice
 }
