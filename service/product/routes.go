@@ -50,7 +50,20 @@ func (h *Handler) handleCreateProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := h.store.CreateProduct(product)
+	// check if product already exists
+	var productInDb *types.Product
+	productInDb, err := h.store.GetProductByName(product.Name)
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	if productInDb.ID != 0 {
+		utils.WriteError(w, http.StatusConflict, fmt.Errorf("product with name %v already exists", productInDb.Name))
+		return
+	}
+
+	err = h.store.CreateProduct(product)
 	if err != nil {
 		utils.WriteError(w, http.StatusInternalServerError, err)
 		return

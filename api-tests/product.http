@@ -22,9 +22,9 @@ Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "name": "Seizi Kabuto",
-  "description": "guitar seize kabuto",
+  "name": "Fender Stratocaster",
+  "description": "Fender Stratocaster Legitime",
   "image": "image-test",
   "quantity": 100,
-  "price": 2799.99
+  "price": 14999.99
 }
