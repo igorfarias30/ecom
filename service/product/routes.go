@@ -3,6 +3,7 @@ package product
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/mux"
@@ -21,7 +22,8 @@ func NewHandler(store types.ProductStore, userStore types.UserStore) *Handler {
 }
 
 func (h *Handler) RegisterRoutes(router *mux.Router) {
-	router.HandleFunc("/products", h.handleGetProducts).Methods(http.MethodGet)
+	router.HandleFunc("/product", h.handleGetProducts).Methods(http.MethodGet)
+	router.HandleFunc("/product/{id}", h.handleGetProduct).Methods(http.MethodGet)
 
 	// admin routes
 	router.HandleFunc("/product", auth.WithJWTAuth(h.handleCreateProduct, h.userStore)).Methods(http.MethodPost)
@@ -34,6 +36,30 @@ func (h *Handler) handleGetProducts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	utils.WriteJSON(w, http.StatusOK, ps)
+}
+
+func (h *Handler) handleGetProduct(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	str, ok := vars["id"]
+
+	if !ok {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("missing product id"))
+		return
+	}
+
+	productId, err := strconv.Atoi(str)
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid product id"))
+		return
+	}
+
+	product, err := h.store.GetProductById(productId)
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, product)
 }
 
 func (h *Handler) handleCreateProduct(w http.ResponseWriter, r *http.Request) {

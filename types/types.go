@@ -10,6 +10,7 @@ type UserStore interface {
 
 type ProductStore interface {
 	GetProducts() ([]*Product, error)
+	GetProductById(productId int) (*Product, error)
 	GetProductsByIDs(productIDs []int) ([]Product, error)
 	GetProductByName(name string) (*Product, error)
 	CreateProduct(product CreateProductPayload) error

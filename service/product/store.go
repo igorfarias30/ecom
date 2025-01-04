@@ -51,6 +51,23 @@ func (s *Store) GetProductByName(name string) (*types.Product, error) {
 	return product, nil
 }
 
+func (s *Store) GetProductById(productId int) (*types.Product, error) {
+	rows, err := s.db.Query("SELECT * FROM products where id = ?", productId)
+	if err != nil {
+		return nil, err
+	}
+
+	product := new(types.Product)
+	for rows.Next() {
+		product, err = scanRowsIntoProduct(rows)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return product, nil
+}
+
 func (s *Store) GetProductsByIDs(productIDs []int) ([]types.Product, error) {
 	placeHolders := strings.Repeat(",?", len(productIDs)-1)
 	query := fmt.Sprintf("SELECT * FROM products WHERE id IN (? %s)", placeHolders)
@@ -77,6 +94,18 @@ func (s *Store) GetProductsByIDs(productIDs []int) ([]types.Product, error) {
 	return products, nil
 }
 
+func (s *Store) CreateProduct(product types.CreateProductPayload) error {
+	_, err := s.db.Exec("INSERT INTO products (name, description, image, price, quantity) VALUES (?,?,?,?,?)", product.Name, product.Description, product.Image, product.Price, product.Quantity)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *Store) UpdateProduct(product types.Product) error {
+	return nil
+}
+
 func scanRowsIntoProduct(rows *sql.Rows) (*types.Product, error) {
 	product := new(types.Product)
 
@@ -94,16 +123,4 @@ func scanRowsIntoProduct(rows *sql.Rows) (*types.Product, error) {
 		return nil, err
 	}
 	return product, nil
-}
-
-func (s *Store) CreateProduct(product types.CreateProductPayload) error {
-	_, err := s.db.Exec("INSERT INTO products (name, description, image, price, quantity) VALUES (?,?,?,?,?)", product.Name, product.Description, product.Image, product.Price, product.Quantity)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (s *Store) UpdateProduct(product types.Product) error {
-	return nil
 }
